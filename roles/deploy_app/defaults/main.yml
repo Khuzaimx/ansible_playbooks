@@ -1,0 +1,5 @@
+---
+app_dir: /var/www/psycheversity
+docker_image: yourdockerusername/django-app
+
+ 

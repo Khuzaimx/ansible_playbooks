@@ -1,0 +1,14 @@
+---
+- name: update repository index
+  apt:
+    update_cache: false
+
+- name: remove apache2
+  apt:
+    name: apache2
+    state: absent
+
+- name: stop apache2 service
+  service:
+    name: apache2
+    state: stopped
