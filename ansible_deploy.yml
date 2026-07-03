@@ -1,42 +1,39 @@
 ---
-- name: Deploy Full-Stack Django and DB to All VMs
+- name: deploy app
   hosts: django_vms
   become: true
+- tasks:
+  - name: create directory
+    file:
+     path: /var/www/pscheverity
+     state: directory
+     owner: ubuntu
+     group: ubuntu
 
-  tasks:
-    - name: 1. Build project directory
-      file:
-        path: /var/www/psycheversity
-        state: directory
-        owner: ubuntu
-        group: ubuntu
-        mode: '0755'
+  - name: copy docker compose file
+    copy:
+     content: {{ env_file_content }}
+     dest: /var/www/psycheversity/.env
+     owner: ubuntu
+     group: ubuntu  
 
-    - name: 2. Create the production .env file from GitHub Secrets
-      copy:
-        content: "{{ env_file_content }}"
-        dest: /var/www/psycheversity/.env
-        owner: ubuntu
-        group: ubuntu
-        mode: '0600' 
+  - name: copy compose file
+    copy:
+     src: /docker-compose.yml
+     dest: /var/www/psycheversity/docker-compose.yml
 
-    - name: 3. Copy docker-compose.yml from the Git codebase
-      copy:
-        src: ../docker-compose.yml
-        dest: /var/www/psycheversity/docker-compose.yml
+  - name: pull image
+    docker_image:
+     name: yourdockerusername/django-app
+     source: pull
+     force_source: yes
 
-    - name: 4. Pull the fresh Django web image
-      docker_image:
-        name: yourdockerusername/django-app
-        source: pull
-        force_source: yes
+  - name: run workers
+    command: docker compose up -d
+    args:
+     chdir: /var/www/psycheversity
 
-    - name: 5. Start services in background (Ensures DB starts first)
-      command: docker compose up -d
-      args:
-        chdir: /var/www/psycheversity
-
-    - name: 6. Run database migrations inside the running container
-      command: docker compose exec -T web python manage.py migrate
-      args:
-        chdir: /var/www/psycheversity
+  - name: run migrations
+    command: docker compose exec -T web python manage.py migrate
+    args:
+     chdir: /var/www/psyche
