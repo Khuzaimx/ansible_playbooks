@@ -1,23 +1,6 @@
 ---
-- name: Setup Docker on target servers
+- name: setup docker on target servers
   hosts: all
   become: true
-
-  tasks:
-    - name: Download and install Docker
-      apt:
-        name: docker.io
-        state: present
-        update_cache: true
-
-    - name: docker compose plugin
-      apt: 
-      name: docker-composev2
-      state: present
-      update_cache: true
-
-    - name: Ensure Docker service is running and enabled
-      service:
-        name: docker
-        state: started
-        enabled: true
+  roles:
+    - docker_setup
