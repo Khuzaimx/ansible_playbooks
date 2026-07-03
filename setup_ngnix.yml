@@ -1,0 +1,30 @@
+- name: setup ngnix
+  tasks:
+  - name: install
+    apt: 
+    - name: ngnix
+      state: present
+      update_cache: true
+
+  - name: start
+    services:
+    - name: ngnix
+      state: started 
+      enabled: true
+
+  - name: remove default link 
+    file: 
+    path: /etc/ngnix/sites-enabled/default
+    state: absent
+
+  - name: Copy our custom configuration file
+      template:
+        src: ngnix.conf
+        dest: /etc/nginx/sites-enabled/default
+        notify: ngnix restart
+
+  handlers:
+  - name: nginx restart 
+    service:
+    - name: ngnix 
+      state: restarted          
