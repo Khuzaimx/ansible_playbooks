@@ -10,6 +10,12 @@
         state: present
         update_cache: true
 
+    - name: docker compose plugin
+      apt: 
+      name: docker-composev2
+      state: present
+      update_cache: true
+
     - name: Ensure Docker service is running and enabled
       service:
         name: docker
