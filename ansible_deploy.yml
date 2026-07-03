@@ -1,39 +1,6 @@
 ---
-- name: deploy app
+- name: deploy django app
   hosts: django_vms
   become: true
-- tasks:
-  - name: create directory
-    file:
-     path: /var/www/pscheverity
-     state: directory
-     owner: ubuntu
-     group: ubuntu
-
-  - name: copy docker compose file
-    copy:
-     content: {{ env_file_content }}
-     dest: /var/www/psycheversity/.env
-     owner: ubuntu
-     group: ubuntu  
-
-  - name: copy compose file
-    copy:
-     src: /docker-compose.yml
-     dest: /var/www/psycheversity/docker-compose.yml
-
-  - name: pull image
-    docker_image:
-     name: yourdockerusername/django-app
-     source: pull
-     force_source: yes
-
-  - name: run workers
-    command: docker compose up -d
-    args:
-     chdir: /var/www/psycheversity
-
-  - name: run migrations
-    command: docker compose exec -T web python manage.py migrate
-    args:
-     chdir: /var/www/psyche
+  roles:
+    - deploy_app
