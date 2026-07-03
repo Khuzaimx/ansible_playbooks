@@ -1,0 +1,37 @@
+---
+- name: create app directory
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+
+- name: copy environment file
+  copy:
+    content: "{{ env_file_content }}"
+    dest: "{{ app_dir }}/.env"
+    owner: ubuntu
+    group: ubuntu
+
+- name: copy docker compose file
+  copy:
+    src: docker-compose.yml
+    dest: "{{ app_dir }}/docker-compose.yml"
+    owner: ubuntu
+    group: ubuntu
+
+- name: pull application image
+  docker_image:
+    name: "{{ docker_image }}"
+    source: pull
+    force_source: true
+
+- name: start containers
+  command: docker compose up -d
+  args:
+    chdir: "{{ app_dir }}"
+
+- name: run database migrations
+  command: docker compose exec -T web python manage.py migrate
+  args:
+    chdir: "{{ app_dir }}"
